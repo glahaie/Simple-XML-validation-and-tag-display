@@ -67,23 +67,20 @@ Chaine chaineCreeCopie(char * ch, unsigned n) {
 int chaineAjoute(Chaine chaine, unsigned char ch) {
 
     //Assert que chaine est pas NULL
-    assert(chaine != NULL);
-    char * temp;
+    //assert(chaine != NULL);
 
     //Vérifie qu'il y a de la place dans la chaine pour un nouveau char.
     if(chaine->longueur == chaine->longueur_max) {
-        temp = (char *)realloc(chaine->s, (chaine->longueur_max + PAS)*sizeof(char));
-        if(temp == NULL)
+        chaine->s = (char *)realloc(chaine->s, (chaine->longueur_max + PAS)*sizeof(char));
+        if(chaine->s == NULL)
             return 0;
         chaine->longueur_max += PAS;
+        chaine->s[chaine->longueur++] = ch;
+        chaine->s[chaine->longueur] = '\0';
+        return 1;
     }
-
-    //Copier le caractère, avec déplacement du \0 à la fin.
-    temp[chaine->longueur++] = ch;
-    temp[chaine->longueur] = '\0';
-    free(chaine->s);
-    chaine->s = temp;
-    
+    chaine->s[chaine->longueur++] = ch;
+    chaine->s[chaine->longueur] = '\0';
     return 1;
 }
 
@@ -105,7 +102,7 @@ unsigned chaineLongueur(Chaine chaine) {
     return chaine->longueur;
 }
 
-void chaineSupprime(Chaine chaine) {
+void chaineSupprimme(Chaine chaine) {
     assert(chaine != NULL);
 
     free(chaine->s);

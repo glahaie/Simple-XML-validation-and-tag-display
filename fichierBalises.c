@@ -11,6 +11,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "fichierBalises.h"
+#include "chaine.h"
+#include "balise.h"
 
 
 struct fichierBalises {
@@ -21,7 +23,7 @@ struct fichierBalises {
 //Vérifier que nom_fichier n'est pas null?
 fichierBalises fichierBalisesOuvre(char * nom_fichier) {
 
-    fichierBalises fib = (fichierBalises)malloc(struct fichierBalises));
+    fichierBalises fib = (fichierBalises)malloc(sizeof(struct fichierBalises));
     
     fib->fic = fopen(nom_fichier, "r");
 
@@ -46,17 +48,12 @@ Info fichierBalisesLit(fichierBalises fichier) {
 
     Info info;
     Chaine prochaine;
-    Balise balise;
     int c;
     char verif;
 
     do {
-        free(info);
-        chaineSupprime(prochaine);
-        baliseSupprime(balise);
 
-        info = (Info)malloc(struct info);
-        prochaine = chaineCreeVide();
+        info = (Info)malloc(sizeof(struct info));
 
         //on s'assure que le fichier est au bon endroit
         fseek(fichier->fic, fichier->position*sizeof(char), SEEK_SET);
@@ -71,11 +68,42 @@ Info fichierBalisesLit(fichierBalises fichier) {
             verif = '<';
             info->type = TEXTE;
         }
+
+        prochaine = chaineCreeVide();
         
-        chaineAjoute(prochaine, c);
         //On remplie la chaine -- à vérifier pour balise, si EOF arrive avant la
         //fin de la balise (>)
-        while(c != verif && c != EOF) {
-            
-            
+        do {    
+            chaineAjoute(prochaine,c);
+            fichier->position++;
+            c = fgetc(fichier->fic);
+        } while(c != verif && c != EOF);
+        
+        //retourne TEXTE OU OBTIENT BALISE
+        if(info->type == TEXTE) {
+            info->contenu.texte = chaineCreeCopie(chaineValeur(prochaine), chaineLongueur(prochaine));
+            free(prochaine);
+
+            return info;
+        } else {
+            //analyse de la balise
+            info->contenu.balise = baliseCree(prochaine);
+            info->contenu.balise = baliseCree(prochaine);
+            chaineSupprimme(prochaine);
+            if(baliseLitType(info->contenu.balise) == COMMENTAIRES ||
+                        baliseLitType(info->contenu.balise) == DIRECTIVE) {
+                //On libère le struct info et balise et on recommence la boucle.
+                baliseSupprimme(info->contenu.balise);
+                free(info);
+                continue;
+            } else {
+                //C'est un bon type de balise à retourner. On libère prochaine
+                //avant de retourner
+                return info;
+            }
+        }
+    } while(1);
+
+}
+           
         

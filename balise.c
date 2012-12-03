@@ -150,7 +150,7 @@ Chaine baliseLitAttributs(Balise balise) {
 
 //Pour le moment je ne vérifie pas le type de la balise, car je crois 
 //qu'on peut devoir supprimer peu importe le type.
-void baliseSupprime(Balise balise) {
+void baliseSupprimme(Balise balise) {
 
     assert(balise != NULL);
 
