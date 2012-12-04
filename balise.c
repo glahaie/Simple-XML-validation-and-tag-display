@@ -13,6 +13,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 
 
 struct balise {
@@ -28,7 +29,7 @@ struct balise {
 Balise baliseCree(Chaine nom) {
 
     assert(nom != NULL && chaineLongueur(nom) > 2);
-    int i =1;
+    int i =1, finBalise;
     unsigned char c;
     Balise b = (Balise)malloc(sizeof(struct balise));
     char * ch = (char *)malloc(chaineLongueur(nom)*sizeof(char));
@@ -62,6 +63,7 @@ Balise baliseCree(Chaine nom) {
                 chaineAjoute(b->nom, c);
             } else if (c == '>') {
                 //
+                chaineAjoute(b->nom, '\0');
                 break;
             } else {
                 //Erreur
@@ -70,16 +72,26 @@ Balise baliseCree(Chaine nom) {
         }
     } else {
         //C'est un début/ debutfin
-        //On trouve le nom - La vérification que le nom est conforme
-        //est à améliorer
+        //On connait la longueur de la chaine - on peut vérifier si
+        //le type de balise.
+        if(chaineValeur(nom)[chaineLongueur(nom)-2] == '/') {
+            b->type = DEBUTFIN;
+            finBalise = chaineLongueur(nom) - 2;
+        } else {
+            b->type = DEBUT;
+        finBalise = (b->type==DEBUT?chaineLongueur(nom)-1:chaineLongueur(nom)-2);
+            finBalise = chaineLongueur(nom) - 1;
+        }
+
         b->nom = chaineCreeVide();
         i = 1;
-        while(1) {
-            c = ch[i++];
+        while(i < finBalise) {
+            c = ch[i];
+            i++;
             if(isalpha(c) || isdigit(c)) {
-                chaineAjoute(b->nom, c);
-            } else if (isspace(c)) {
-                //nom fini
+                chaineAjoute(b->nom, (unsigned char)c);
+            } else if(isspace(c)) {
+                //Nom fini - sort de la boucle
                 break;
             } else {
                 //Erreur
@@ -87,25 +99,21 @@ Balise baliseCree(Chaine nom) {
                 exit(1);
             }
         }
-        
-        //On ajoute dans attribut maintenant et / ou type de balise
-        while(1) {
-            c = ch[i++];
-            if(c != '>' && c !='/') {
-                if(b->attribut == NULL) {
-                    b->attribut = chaineCreeVide();
-                }
+        chaineAjoute(b->nom, '\0');
+        printf("b->nom: %s\n", chaineValeur(b->nom));
+        //On ajoute dans attribut maintenant
+        if(i < finBalise) {
+            b->attribut = chaineCreeVide();
+            for(; i < finBalise; i++) {
+                c = ch[i];
                 chaineAjoute(b->attribut, c);
-            } else if (c == '>') {
-                b->type = DEBUT;
-                break;
-            } else if( c == '/') {
-                b->type = DEBUTFIN;
-                break;
             }
+            chaineAjoute(b->attribut, '\0');
         }
     }
-
+    if(b->attribut != NULL) {
+        printf("b->attribut: %s\n", chaineValeur(b->attribut));
+    }
     return b;
 }
 

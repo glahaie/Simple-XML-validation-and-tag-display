@@ -47,7 +47,8 @@ Chaine chaineCreeCopie(char * ch, unsigned n) {
     //assert(n <= (sizeof(ch)/sizeof(char)));
 
     Chaine chaine = (Chaine)malloc(sizeof(struct chaine));
-    chaine->s = (char *)malloc((n)*sizeof(char)); //+1 pour \0
+    chaine->s = (char *)malloc((n+1)*sizeof(char)); //+1 pour \0
+    chaine->s[n] = '\0';
     
     if(chaine->s == NULL || chaine == NULL) {
         return NULL;
@@ -88,10 +89,10 @@ char * chaineValeur(Chaine chaine) {
 
     assert(chaine != NULL);
 
-    char * ch = (char*)malloc(chaineLongueur(chaine)*sizeof(char));
+    char * ch = (char*)malloc((chaineLongueur(chaine)+1)*sizeof(char));
 
     //Quoi faire si malloc ne fonctionne pas? Est-ce qu'on retourne NULL?
-    strncpy(ch, chaine->s, chaineLongueur(chaine));
+    strncpy(ch, chaine->s, chaineLongueur(chaine)+1);
 
     return ch;
 }
