@@ -31,7 +31,7 @@ Balise baliseCree(Chaine nom) {
     int i =1, finBalise;
     unsigned char c;
     Balise balise = (Balise)malloc(sizeof(struct balise));
-    char * jeton = (char *)malloc(chaineLongueur(nom)*sizeof(char)); //Le nom ne peut être plus long
+    char * jeton;
     char * valeurNom = chaineValeur(nom);
 
     //A valider - quoi faire si malloc ne fonctionne pas
@@ -56,7 +56,6 @@ Balise baliseCree(Chaine nom) {
         //Trouver le nom à l'aide de jetons
         jeton = strtok(&valeurNom[2], ">");
         balise->nom = chaineCreeCopie(jeton, strlen(jeton));
-        free(jeton);
 
         /*i = 2;
         while(1) {
@@ -128,8 +127,7 @@ Balise baliseCree(Chaine nom) {
         printf("b->attribut: %s\n", chaineValeur(balise->attribut));
     } 
     printf("baliseCree: avant free.\n");
-    //free(jeton);
-    //free(valeurNom);
+    free(valeurNom);
     return balise;
 }
 
