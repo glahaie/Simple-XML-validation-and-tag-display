@@ -28,35 +28,37 @@ struct balise {
 //les < et >. Le nom doit contenir au moins un caractère.
 Balise baliseCree(Chaine nom) {
 
-    assert(nom != NULL && chaineLongueur(nom) > 2);
     int i =1, finBalise;
     unsigned char c;
-    Balise b = (Balise)malloc(sizeof(struct balise));
-    char * ch = (char *)malloc(chaineLongueur(nom)*sizeof(char));
+    Balise balise = (Balise)malloc(sizeof(struct balise));
+    char * jeton = (char *)malloc(chaineLongueur(nom)*sizeof(char)); //Le nom ne peut être plus long
+    char * valeurNom = chaineValeur(nom);
 
-    if(b == NULL || ch == NULL) {
+    //A valider - quoi faire si malloc ne fonctionne pas
+    if(balise == NULL || jeton == NULL || valeurNom == NULL) {
         return NULL;
     }
 
-    ch = chaineValeur(nom);
-
     //Obtenir le type, si possible
-    switch(ch[1]) {
-        case '!': b->type = COMMENTAIRES;
+    switch(valeurNom[1]) {
+        case '!': balise->type = COMMENTAIRES;
                   break;
-        case '?': b->type = DIRECTIVE;
+        case '?': balise->type = DIRECTIVE;
                   break;
-        case '/': b->type = FIN;
+        case '/': balise->type = FIN;
                   break;
     }
 
-    if(b->type == COMMENTAIRES || b->type== DIRECTIVE) {
-        b->nom= b->attribut = NULL;
-        return b;
-    } else if (b->type == FIN) {
-        //Trouver le nom, vérifier qu'il y a seulement cela
-        b->nom = chaineCreeVide();
-        i = 2;
+    if(balise->type == COMMENTAIRES || balise->type== DIRECTIVE) {
+        assert( balise->nom == NULL && balise->attribut == NULL && "Balise directive ou \
+                commentaire contient un nom ou un attribut.");
+    } else if (balise->type == FIN) {
+        //Trouver le nom à l'aide de jetons
+        jeton = strtok(&valeurNom[2], ">");
+        balise->nom = chaineCreeCopie(jeton, strlen(jeton));
+        free(jeton);
+
+        /*i = 2;
         while(1) {
             c = ch[i];
             if(isalpha(c) || isdigit(c)) {
@@ -69,20 +71,29 @@ Balise baliseCree(Chaine nom) {
                 //Erreur
             }
             i++;
-        }
+        } */
     } else {
         //C'est un début/ debutfin
         //On connait la longueur de la chaine - on peut vérifier si
         //le type de balise.
+     
         if(chaineValeur(nom)[chaineLongueur(nom)-2] == '/') {
-            b->type = DEBUTFIN;
+            balise->type = DEBUTFIN;
             finBalise = chaineLongueur(nom) - 2;
         } else {
-            b->type = DEBUT;
-        finBalise = (b->type==DEBUT?chaineLongueur(nom)-1:chaineLongueur(nom)-2);
+            balise->type = DEBUT;
+            finBalise = (balise->type==DEBUT?chaineLongueur(nom)-1:chaineLongueur(nom)-2);
             finBalise = chaineLongueur(nom) - 1;
         }
 
+        jeton = strtok(&valeurNom[1], " >");
+        balise->nom = chaineCreeCopie(jeton, strlen(jeton));
+
+        if((jeton = strtok(NULL, ">")) != NULL) {
+            balise->attribut = chaineCreeCopie(jeton, strlen(jeton));
+        }
+        
+        /*
         b->nom = chaineCreeVide();
         i = 1;
         while(i < finBalise) {
@@ -98,23 +109,28 @@ Balise baliseCree(Chaine nom) {
                 fprintf(stderr, "Erreur - Mauvais nom de balise.\n");
                 exit(1);
             }
-        }
-        chaineAjoute(b->nom, '\0');
-        printf("b->nom: %s\n", chaineValeur(b->nom));
+        } */
+        //chaineAjoute(b->nom, '\0');
+        
+        printf("b->nom: %s\n", chaineValeur(balise->nom));
+        
         //On ajoute dans attribut maintenant
-        if(i < finBalise) {
+        /*if(i < finBalise) {
             b->attribut = chaineCreeVide();
             for(; i < finBalise; i++) {
                 c = ch[i];
                 chaineAjoute(b->attribut, c);
             }
             chaineAjoute(b->attribut, '\0');
-        }
-    }
-    if(b->attribut != NULL) {
-        printf("b->attribut: %s\n", chaineValeur(b->attribut));
-    }
-    return b;
+        } */
+    } 
+    if(balise->attribut != NULL) {
+        printf("b->attribut: %s\n", chaineValeur(balise->attribut));
+    } 
+    printf("baliseCree: avant free.\n");
+    //free(jeton);
+    //free(valeurNom);
+    return balise;
 }
 
 
@@ -166,4 +182,6 @@ void baliseSupprimme(Balise balise) {
     free(balise->attribut);
     free(balise);
 }
+
+
 

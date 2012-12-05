@@ -16,49 +16,54 @@
 
 //Vérifier la différence entre int et size_t
 struct chaine {
-    char *s;
-    unsigned int longueur;
-    unsigned int longueur_max;
+    char *texte;
+    unsigned longueur;
+    unsigned longueur_max;
 };
 
 
 Chaine chaineCreeVide() {
 
-    Chaine ch = (Chaine)malloc(sizeof(struct chaine));
+    Chaine chaine = (Chaine)malloc(sizeof(struct chaine));
 
     //Vérifier que les deux alloctions ont fonctionnés
-    ch->s = (char *)malloc(PAS*sizeof(char));
+    chaine->texte = (char *)malloc(PAS*sizeof(char));
 
-    //Verifie que l'allocation a fonctionné
-    if (ch->s == NULL || ch == NULL)
+    //R
+    if (!(chaine->texte && chaine))
        return NULL;
 
-   //Sinon, on attribue les valeurs de base à la chaine
-   ch->longueur = 0;
-   ch->longueur_max = PAS;
+    //Insère \0 pour la fin de la chaine.
+    chaine->texte[0] = '\0';
 
-   return ch;
+   //Sinon, on attribue les valeurs de base à la chaine
+   chaine->longueur = 0;
+   chaine->longueur_max = PAS;
+
+   return chaine;
 }
 
+//Ici j'interprète l'assertion comme quoi n doit être plus petit
+//que la chaine passée en argument. Pour pouvoir trouver sa longueur
+//j'utilise strlen. J'ajoute plus 1 car n représente le nombre de 
+//caractères, il peut ou ne peut pas contenir le \0, donc j'en insère
+//un pour m'en assurer.
 Chaine chaineCreeCopie(char * ch, unsigned n) {
     
-    //Pourrait avoir un assert pour vérifier que ch se termine par \0
-    //Et que n est plus grand que 0.
-    //assert(n <= (sizeof(ch)/sizeof(char)));
+    assert(n <= (strlen(ch)+1) && "n plus grand que la longeur de ch");
 
     Chaine chaine = (Chaine)malloc(sizeof(struct chaine));
-    chaine->s = (char *)malloc((n+1)*sizeof(char)); //+1 pour \0
-    chaine->s[n] = '\0';
+    chaine->texte = (char *)malloc((n+1)*sizeof(char)); //+1 pour \0
+    chaine->texte[n] = '\0';
     
-    if(chaine->s == NULL || chaine == NULL) {
+    if(!(chaine->texte &&  chaine)) {
         return NULL;
     }
 
-    //On pourrait utiliser strncpy, mais le man semble dire que strcopy est meilleur.
-    strcpy(chaine->s, ch);
+    strncpy(chaine->texte, ch, n);
 
-    chaine->longueur = n-1;
-    chaine->longueur_max = n;
+    chaine->longueur = n;
+    chaine->longueur_max = n+1;
 
     return chaine;
 }
@@ -67,46 +72,49 @@ Chaine chaineCreeCopie(char * ch, unsigned n) {
 //si le realloc ne fonctionne pas.
 int chaineAjoute(Chaine chaine, unsigned char ch) {
 
-    //Assert que chaine est pas NULL
-    //assert(chaine != NULL);
+    assert(chaine != NULL  && "Erreur: chaine NULL");
+
+    char * temp; //Pour réalloc: on ne perd pas de données en cas d'échec
 
     //Vérifie qu'il y a de la place dans la chaine pour un nouveau char.
-    if(chaine->longueur == chaine->longueur_max) {
-        chaine->s = (char *)realloc(chaine->s, (chaine->longueur_max + PAS)*sizeof(char));
-        if(chaine->s == NULL)
+    if(chaine->longueur >= chaine->longueur_max) {
+        temp = (char *)realloc(chaine->texte, (chaine->longueur_max + PAS)*sizeof(char));
+        if(!temp)
             return 0;
+        //free(chaine->texte);
+        chaine->texte = temp;
         chaine->longueur_max += PAS;
-        chaine->s[chaine->longueur++] = ch;
-        chaine->s[chaine->longueur] = '\0';
-        return 1;
     }
-    chaine->s[chaine->longueur++] = ch;
-    chaine->s[chaine->longueur] = '\0';
+    chaine->texte[chaine->longueur++] = ch;
+    chaine->texte[chaine->longueur] = '\0';
     return 1;
 }
 
+//La fonction retourne NULL si l'allocation de mémoire a échoué.
 char * chaineValeur(Chaine chaine) {
 
-    assert(chaine != NULL);
+    assert(chaine != NULL  && "Erreur: chaine NULL");
 
-    char * ch = (char*)malloc((chaineLongueur(chaine)+1)*sizeof(char));
+    char * retour = (char*)malloc((chaineLongueur(chaine)+1)*sizeof(char));
+    
+    if(!retour) {
+        return NULL;
+    }
 
-    //Quoi faire si malloc ne fonctionne pas? Est-ce qu'on retourne NULL?
-    strncpy(ch, chaine->s, chaineLongueur(chaine)+1);
+    strcpy(retour, chaine->texte);
 
-    return ch;
+    return retour;
 }
 
 unsigned chaineLongueur(Chaine chaine) {
-    assert(chaine != NULL);
-
+    assert(chaine != NULL  && "Erreur: chaine NULL");
     return chaine->longueur;
 }
 
 void chaineSupprimme(Chaine chaine) {
-    assert(chaine != NULL);
+    assert(chaine != NULL  && "Erreur: chaine NULL");
 
-    free(chaine->s);
+    free(chaine->texte);
     free(chaine);
     return;
 }
