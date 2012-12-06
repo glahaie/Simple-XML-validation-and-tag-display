@@ -31,7 +31,6 @@ TypeBalise obtenirType(char *nom);
 //les < et >. Le nom doit contenir au moins un caractère.
 Balise baliseCree(Chaine nom) {
 
-    int position;
     Balise balise = (Balise)malloc(sizeof(struct balise));
     char * jeton;                           //pour strtok
     char * attributs;                       //pour les attributs, si nécessaire
@@ -55,28 +54,32 @@ Balise baliseCree(Chaine nom) {
 
     } else {
         //C'est un début/ debutfin
-    
         jeton = strtok(&valeurNom[1], " >");
         balise->nom = chaineCreeCopie(jeton, strlen(jeton));
          
-        //Je prends la longueur de nom car les attributs ne peuvent pas être
-        //plus grand que cela.
-        position = 0;
-        attributs = (char *)malloc(chaineLongueur(nom)*sizeof(char));
-        while((jeton = strtok(NULL, " >")) != NULL) {
-            strcat(attributs, jeton);
-            position += strlen(jeton);
-            printf("attributs:%s : %d\n",attributs, strlen(attributs));
-            attributs[position++] = ' ';
-            attributs[position] = '\0';
+        //Traitement des attributs, si nécessaire. La longueur des
+        //attributs ne peut pas être plus long de la longueur de nom.
+        if((jeton = strtok(NULL, " >")) != NULL) {
+
+            attributs = (char *)malloc(chaineLongueur(nom)*sizeof(char));
+            if(!attributs) {
+                return NULL;
+            }
+            while (jeton != NULL) {
+                strcat(attributs, jeton);
+                strcat(attributs, " \0");
+                jeton = strtok(NULL, " >");
+            }
+            if(balise->type == DEBUTFIN) {
+                attributs[strlen(attributs)-2] = '\0';
+            }
+            balise->attribut = chaineCreeCopie(attributs, strlen(attributs));
+            free(attributs);
+        } else {
+            balise->attribut = NULL;
         }
-        if(balise->type == DEBUTFIN) {
-            attributs[position-2] = '\0';
-        }
-        balise->attribut = chaineCreeCopie(attributs, strlen(attributs));
-        free(attributs);
      
-    }        
+    }
     free(valeurNom);
     return balise;
 }
@@ -90,7 +93,7 @@ Chaine baliseLitNom(Balise balise) {
     Chaine retour = chaineCreeCopie(chaineValeur(balise->nom), chaineLongueur(balise->nom));
     
     if(retour == NULL) {
-        //Erreur
+        return NULL;
     }
     return retour;
 }
@@ -102,7 +105,11 @@ TypeBalise baliseLitType(Balise balise) {
     return balise->type;
 }
  
+//Ici, NULL peut vouloir dire deux choses: soit la balise n'a pas d'attributs, soit
+//l'allocation mémoire pour la chaine a rencontré une erreur.
 Chaine baliseLitAttributs(Balise balise) {
+
+    Chaine attribut;
 
     assert(balise != NULL && "La balise est nulle.");
     assert(baliseLitType(balise) != DIRECTIVE && baliseLitType(balise) != COMMENTAIRES &&
@@ -112,30 +119,27 @@ Chaine baliseLitAttributs(Balise balise) {
     if(balise->attribut == NULL) {
         return NULL;
     } else {
-        att = chaineCreeCopie(chaineValeur(balise->attribut), chaineLongueur(balise->attribut));
-        if(att == NULL) {
-            //erreur
-        }
+        attribut = chaineCreeCopie(chaineValeur(balise->attribut), chaineLongueur(balise->attribut));
     }
-    return att;
+    return attribut;
 }
 
-//Pour le moment je ne vérifie pas le type de la balise, car je crois 
-//qu'on peut devoir supprimer peu importe le type.
 void baliseSupprimme(Balise balise) {
 
-    assert(balise != NULL);
+    assert(balise != NULL && "La balise est nulle.");
 
     free(balise->nom);
     free(balise->attribut);
     free(balise);
 }
 
-
+//Fonction pour obtenir le TypeBalise d'une balise.
 TypeBalise obtenirType(char * nom) {
 
     TypeBalise type;
 
+    printf("Appel de obtenirType.\n");
+    printf("nom = %s - %d\n", nom, strlen(nom));
     if(nom[1] == '?') {
         type = DIRECTIVE;
     } else if (nom[1] == '!') {
@@ -148,5 +152,5 @@ TypeBalise obtenirType(char * nom) {
         type = DEBUT;
     }
 
-    return DEBUT;
+    return type;
 }

@@ -10,6 +10,7 @@
 int main(int argc, char * argv[]) {
 	fichierBalises fic;
 	Info texte;
+    char * temp;
 	if (argc != 2){
 		fprintf(stderr,"Usage : %s fichier\n", argv[0]);
 		return 1;
@@ -20,8 +21,16 @@ int main(int argc, char * argv[]) {
 		return 2;
 	}
 	while ((texte = fichierBalisesLit(fic)) != NULL) {
-		if (texte->type == TEXTE)
-			printf("%s", chaineValeur(texte->contenu.texte));
+		if (texte->type == TEXTE) {
+            temp = chaineValeur(texte->contenu.texte);
+			printf("%s ", temp);
+            free(temp);
+            chaineSupprimme(texte->contenu.texte);
+        } else {
+            baliseSupprimme(texte->contenu.balise);
+        }
+            
+
 		free(texte);
 	}
 	fichierBalisesFerme(fic);

@@ -49,11 +49,10 @@ Info fichierBalisesLit(fichierBalises fichier) {
 
     Info info;
     Chaine prochaine;
-    int c;
+    int c, finBoucle = 1;
     int verif;
+    char *temp; //Pour éviter de perdre de la mémoire allouée
 
-    printf("Appel de fichierBalises.\n");
-    printf("fichier->position = %d\n", fichier->position);
 
     do {
 
@@ -67,17 +66,14 @@ Info fichierBalisesLit(fichierBalises fichier) {
             c = fgetc(fichier->fic);
             fichier->position++;
         } while (isspace(c));
-        printf("\n");
         if(c == EOF) {
             return NULL;
         }else if (c == '<') {
             verif = '>';
             info->type = BALISE;
-            printf("verif = %c, type balise.\n", verif);
         } else {
             verif = '<';
             info->type = TEXTE;
-            printf("verif = %c, type texte.\n", verif);
         }
 
         prochaine = chaineCreeVide();
@@ -93,13 +89,17 @@ Info fichierBalisesLit(fichierBalises fichier) {
             }
         } while(c != verif && c != EOF);
         
-        printf("prochaine: %s\n", chaineValeur(prochaine));
         //retourne TEXTE OU OBTIENT BALISE
         if(info->type == TEXTE) {
-            info->contenu.texte = chaineCreeCopie(chaineValeur(prochaine), chaineLongueur(prochaine));
-            free(prochaine);
-            printf("info->contenu = %s\n", chaineValeur(info->contenu.texte));
-            return info;
+
+            temp = chaineValeur(prochaine);
+            if(!temp) {
+                //Malloc a échoué
+            } else {
+                info->contenu.texte = chaineCreeCopie(temp, chaineLongueur(prochaine));
+                free(temp);
+            }
+            finBoucle = 1;
         } else {
             //analyse de la balise
             info->contenu.balise = baliseCree(prochaine);
@@ -109,19 +109,15 @@ Info fichierBalisesLit(fichierBalises fichier) {
                 //On libère le struct info et balise et on recommence la boucle.
                 baliseSupprimme(info->contenu.balise);
                 free(info);
-                continue;
+                finBoucle = 0;
             } else {
                 //C'est un bon type de balise à retourner. On libère prochaine             
                 //avant de retourner
-                printf("Retour de info.\n");
-                printf("info->type: %d\n", baliseLitType(info->contenu.balise));
-                if(baliseLitType(info->contenu.balise) != DIRECTIVE && baliseLitType(info->contenu.balise) != COMMENTAIRES) {
-                    printf("info->contenu: %s\n", chaineValeur(baliseLitNom(info->contenu.balise)));
-                }
-                return info;
+                finBoucle = 1;
             }
         }
-    } while(1);
+    } while(!finBoucle);
+    return info;
 
 }
            

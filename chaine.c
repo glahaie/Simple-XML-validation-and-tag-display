@@ -37,7 +37,7 @@ Chaine chaineCreeVide() {
     chaine->texte[0] = '\0';
 
    //Sinon, on attribue les valeurs de base à la chaine
-   chaine->longueur = 0;
+   chaine->longueur = 1;
    chaine->longueur_max = PAS;
 
    return chaine;
@@ -51,7 +51,7 @@ Chaine chaineCreeVide() {
 Chaine chaineCreeCopie(char * ch, unsigned n) {
     
     assert(n <= (strlen(ch)+1) && "n plus grand que la longeur de ch");
-
+    
     Chaine chaine = (Chaine)malloc(sizeof(struct chaine));
     chaine->texte = (char *)malloc((n+1)*sizeof(char)); //+1 pour \0
     chaine->texte[n] = '\0';
@@ -62,8 +62,7 @@ Chaine chaineCreeCopie(char * ch, unsigned n) {
 
     strncpy(chaine->texte, ch, n);
 
-    chaine->longueur = n;
-    chaine->longueur_max = n+1;
+    chaine->longueur = chaine->longueur_max = n+1;
 
     return chaine;
 }
@@ -75,18 +74,19 @@ int chaineAjoute(Chaine chaine, unsigned char ch) {
     assert(chaine != NULL  && "Erreur: chaine NULL");
 
     char * temp; //Pour réalloc: on ne perd pas de données en cas d'échec
-
     //Vérifie qu'il y a de la place dans la chaine pour un nouveau char.
     if(chaine->longueur >= chaine->longueur_max) {
         temp = (char *)realloc(chaine->texte, (chaine->longueur_max + PAS)*sizeof(char));
         if(!temp)
-            return 0;
-        //free(chaine->texte);
+            return 0; //Problème avec realloc
+        if(temp != chaine->texte) {
+            chaine->texte = temp;
+        }
         chaine->texte = temp;
         chaine->longueur_max += PAS;
     }
-    chaine->texte[chaine->longueur++] = ch;
-    chaine->texte[chaine->longueur] = '\0';
+    chaine->texte[chaine->longueur-1] = ch;
+    chaine->texte[chaine->longueur++] = '\0';
     return 1;
 }
 
@@ -108,7 +108,7 @@ char * chaineValeur(Chaine chaine) {
 
 unsigned chaineLongueur(Chaine chaine) {
     assert(chaine != NULL  && "Erreur: chaine NULL");
-    return chaine->longueur;
+    return chaine->longueur-1;
 }
 
 void chaineSupprimme(Chaine chaine) {
