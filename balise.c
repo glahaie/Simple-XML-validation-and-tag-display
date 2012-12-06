@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 
 struct balise {
@@ -22,142 +23,91 @@ struct balise {
     TypeBalise type;
 };
 
+TypeBalise obtenirType(char *nom);
+
 
 //Vérifie si le malloc fonctionne bien. Retoune NULL dans ce cas.
 //Pour le moment je suppose que la Chaine nom passée contient encore
 //les < et >. Le nom doit contenir au moins un caractère.
 Balise baliseCree(Chaine nom) {
 
-    int i =1, finBalise;
-    unsigned char c;
+    int position;
     Balise balise = (Balise)malloc(sizeof(struct balise));
-    char * jeton;
+    char * jeton;                           //pour strtok
+    char * attributs;                       //pour les attributs, si nécessaire
     char * valeurNom = chaineValeur(nom);
 
     //A valider - quoi faire si malloc ne fonctionne pas
-    if(balise == NULL || jeton == NULL || valeurNom == NULL) {
+    if(balise == NULL || valeurNom == NULL) {
         return NULL;
     }
 
     //Obtenir le type, si possible
-    switch(valeurNom[1]) {
-        case '!': balise->type = COMMENTAIRES;
-                  break;
-        case '?': balise->type = DIRECTIVE;
-                  break;
-        case '/': balise->type = FIN;
-                  break;
-    }
-
+    balise->type = obtenirType(valeurNom);
+   
     if(balise->type == COMMENTAIRES || balise->type== DIRECTIVE) {
-        assert( balise->nom == NULL && balise->attribut == NULL && "Balise directive ou \
-                commentaire contient un nom ou un attribut.");
+        balise->nom = balise->attribut = NULL;
     } else if (balise->type == FIN) {
-        //Trouver le nom à l'aide de jetons
+        //Trouver le nom à l'aide de jetons. Comme une balise fin n'a
+        //d'attributs, on n'y porte pas attention.
         jeton = strtok(&valeurNom[2], ">");
         balise->nom = chaineCreeCopie(jeton, strlen(jeton));
 
-        /*i = 2;
-        while(1) {
-            c = ch[i];
-            if(isalpha(c) || isdigit(c)) {
-                chaineAjoute(b->nom, c);
-            } else if (c == '>') {
-                //
-                chaineAjoute(b->nom, '\0');
-                break;
-            } else {
-                //Erreur
-            }
-            i++;
-        } */
     } else {
         //C'est un début/ debutfin
-        //On connait la longueur de la chaine - on peut vérifier si
-        //le type de balise.
-     
-        if(chaineValeur(nom)[chaineLongueur(nom)-2] == '/') {
-            balise->type = DEBUTFIN;
-            finBalise = chaineLongueur(nom) - 2;
-        } else {
-            balise->type = DEBUT;
-            finBalise = (balise->type==DEBUT?chaineLongueur(nom)-1:chaineLongueur(nom)-2);
-            finBalise = chaineLongueur(nom) - 1;
-        }
-
+    
         jeton = strtok(&valeurNom[1], " >");
         balise->nom = chaineCreeCopie(jeton, strlen(jeton));
-
-        if((jeton = strtok(NULL, ">")) != NULL) {
-            balise->attribut = chaineCreeCopie(jeton, strlen(jeton));
+         
+        //Je prends la longueur de nom car les attributs ne peuvent pas être
+        //plus grand que cela.
+        position = 0;
+        attributs = (char *)malloc(chaineLongueur(nom)*sizeof(char));
+        while((jeton = strtok(NULL, " >")) != NULL) {
+            strcat(attributs, jeton);
+            position += strlen(jeton);
+            printf("attributs:%s : %d\n",attributs, strlen(attributs));
+            attributs[position++] = ' ';
+            attributs[position] = '\0';
         }
-        
-        /*
-        b->nom = chaineCreeVide();
-        i = 1;
-        while(i < finBalise) {
-            c = ch[i];
-            i++;
-            if(isalpha(c) || isdigit(c)) {
-                chaineAjoute(b->nom, (unsigned char)c);
-            } else if(isspace(c)) {
-                //Nom fini - sort de la boucle
-                break;
-            } else {
-                //Erreur
-                fprintf(stderr, "Erreur - Mauvais nom de balise.\n");
-                exit(1);
-            }
-        } */
-        //chaineAjoute(b->nom, '\0');
-        
-        printf("b->nom: %s\n", chaineValeur(balise->nom));
-        
-        //On ajoute dans attribut maintenant
-        /*if(i < finBalise) {
-            b->attribut = chaineCreeVide();
-            for(; i < finBalise; i++) {
-                c = ch[i];
-                chaineAjoute(b->attribut, c);
-            }
-            chaineAjoute(b->attribut, '\0');
-        } */
-    } 
-    if(balise->attribut != NULL) {
-        printf("b->attribut: %s\n", chaineValeur(balise->attribut));
-    } 
-    printf("baliseCree: avant free.\n");
+        if(balise->type == DEBUTFIN) {
+            attributs[position-2] = '\0';
+        }
+        balise->attribut = chaineCreeCopie(attributs, strlen(attributs));
+        free(attributs);
+     
+    }        
     free(valeurNom);
     return balise;
 }
 
-
 Chaine baliseLitNom(Balise balise) {
 
-    assert(balise != NULL);
-    assert(baliseLitType(balise) != DIRECTIVE && baliseLitType(balise) != COMMENTAIRES);
+    assert(balise != NULL && "La balise est nulle.");
+    assert(baliseLitType(balise) != DIRECTIVE && baliseLitType(balise) != COMMENTAIRES &&
+            "Mauvais type de balise.");
 
     Chaine retour = chaineCreeCopie(chaineValeur(balise->nom), chaineLongueur(balise->nom));
     
     if(retour == NULL) {
         //Erreur
     }
-
     return retour;
 }
 
 TypeBalise baliseLitType(Balise balise) {
     
-    assert(balise != NULL);
+    assert(balise != NULL && "La balise est nulle.");
 
     return balise->type;
 }
  
 Chaine baliseLitAttributs(Balise balise) {
 
-    assert(balise != NULL);
-    assert(baliseLitType(balise) != DIRECTIVE && baliseLitType(balise) != COMMENTAIRES);
-    Chaine att;
+    assert(balise != NULL && "La balise est nulle.");
+    assert(baliseLitType(balise) != DIRECTIVE && baliseLitType(balise) != COMMENTAIRES &&
+            "Mauvais type de balise.");
+
 
     if(balise->attribut == NULL) {
         return NULL;
@@ -182,4 +132,21 @@ void baliseSupprimme(Balise balise) {
 }
 
 
+TypeBalise obtenirType(char * nom) {
 
+    TypeBalise type;
+
+    if(nom[1] == '?') {
+        type = DIRECTIVE;
+    } else if (nom[1] == '!') {
+        type = COMMENTAIRES;
+    } else if (nom[1] == '/') {
+        type = FIN;
+    } else if(nom[strlen(nom)-2] == '/') {
+        type = DEBUTFIN;
+    } else {
+        type = DEBUT;
+    }
+
+    return DEBUT;
+}

@@ -1,10 +1,13 @@
+<?xml ...>
+<!Commentaires>
+<debutfin attr1="attr1" attr2="attr2"/>
 <math    xmlns="http://www.w3.org/1998/Math/MathML">     <mfrac>
           <mn>1</mn>
           <mn>2</mn>
      </mfrac>
      <mo>+</mo>
      <mstyle displaystyle="true">
-          <mfrac>
+         <mfrac>
                <mn>1</mn>
                <mn>2</mn>
           </mfrac>

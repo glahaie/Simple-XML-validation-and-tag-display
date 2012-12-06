@@ -115,7 +115,9 @@ Info fichierBalisesLit(fichierBalises fichier) {
                 //avant de retourner
                 printf("Retour de info.\n");
                 printf("info->type: %d\n", baliseLitType(info->contenu.balise));
-                printf("info->contenu: %s\n", chaineValeur(baliseLitNom(info->contenu.balise)));
+                if(baliseLitType(info->contenu.balise) != DIRECTIVE && baliseLitType(info->contenu.balise) != COMMENTAIRES) {
+                    printf("info->contenu: %s\n", chaineValeur(baliseLitNom(info->contenu.balise)));
+                }
                 return info;
             }
         }
