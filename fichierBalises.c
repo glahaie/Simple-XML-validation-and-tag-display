@@ -38,7 +38,7 @@ fichierBalises fichierBalisesOuvre(char * nom_fichier) {
 
 void fichierBalisesFerme(fichierBalises fichier) {
 
-    assert(fichier != NULL);
+    assert(fichier != NULL && "fichier est NULL");
 
     fclose(fichier->fic);
 
@@ -53,7 +53,6 @@ Info fichierBalisesLit(fichierBalises fichier) {
     int verif;
     char *temp; //Pour éviter de perdre de la mémoire allouée
 
-
     do {
 
         info = (Info)malloc(sizeof(struct info));
@@ -67,6 +66,7 @@ Info fichierBalisesLit(fichierBalises fichier) {
             fichier->position++;
         } while (isspace(c));
         if(c == EOF) {
+            free(info);
             return NULL;
         }else if (c == '<') {
             verif = '>';
@@ -88,7 +88,7 @@ Info fichierBalisesLit(fichierBalises fichier) {
                 fichier->position++;
             }
         } while(c != verif && c != EOF);
-        
+
         //retourne TEXTE OU OBTIENT BALISE
         if(info->type == TEXTE) {
 
@@ -99,6 +99,7 @@ Info fichierBalisesLit(fichierBalises fichier) {
                 info->contenu.texte = chaineCreeCopie(temp, chaineLongueur(prochaine));
                 free(temp);
             }
+            chaineSupprimme(prochaine);
             finBoucle = 1;
         } else {
             //analyse de la balise

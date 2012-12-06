@@ -38,6 +38,7 @@ Balise baliseCree(Chaine nom) {
 
     //A valider - quoi faire si malloc ne fonctionne pas
     if(balise == NULL || valeurNom == NULL) {
+        baliseSupprimme(balise);
         return NULL;
     }
 
@@ -51,7 +52,7 @@ Balise baliseCree(Chaine nom) {
         //d'attributs, on n'y porte pas attention.
         jeton = strtok(&valeurNom[2], ">");
         balise->nom = chaineCreeCopie(jeton, strlen(jeton));
-
+        balise->attribut = NULL;
     } else {
         //C'est un début/ debutfin
         jeton = strtok(&valeurNom[1], " >");
@@ -63,8 +64,10 @@ Balise baliseCree(Chaine nom) {
 
             attributs = (char *)malloc(chaineLongueur(nom)*sizeof(char));
             if(!attributs) {
+                baliseSupprimme(balise);
                 return NULL;
             }
+            attributs[0] = '\0';
             while (jeton != NULL) {
                 strcat(attributs, jeton);
                 strcat(attributs, " \0");
@@ -128,8 +131,12 @@ void baliseSupprimme(Balise balise) {
 
     assert(balise != NULL && "La balise est nulle.");
 
-    free(balise->nom);
-    free(balise->attribut);
+    if(balise->nom) {
+        chaineSupprimme(balise->nom);
+    }
+    if(balise->attribut) {
+        chaineSupprimme(balise->attribut);
+    }
     free(balise);
 }
 
@@ -138,8 +145,6 @@ TypeBalise obtenirType(char * nom) {
 
     TypeBalise type;
 
-    printf("Appel de obtenirType.\n");
-    printf("nom = %s - %d\n", nom, strlen(nom));
     if(nom[1] == '?') {
         type = DIRECTIVE;
     } else if (nom[1] == '!') {

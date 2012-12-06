@@ -25,13 +25,16 @@ struct chaine {
 Chaine chaineCreeVide() {
 
     Chaine chaine = (Chaine)malloc(sizeof(struct chaine));
+    if(!chaine) {
+        return NULL;
+    }
 
     //Vérifier que les deux alloctions ont fonctionnés
     chaine->texte = (char *)malloc(PAS*sizeof(char));
-
-    //R
-    if (!(chaine->texte && chaine))
-       return NULL;
+    if(!chaine->texte) {
+        free(chaine);
+        return NULL;
+    }
 
     //Insère \0 pour la fin de la chaine.
     chaine->texte[0] = '\0';

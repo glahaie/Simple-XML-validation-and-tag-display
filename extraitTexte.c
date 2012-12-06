@@ -33,6 +33,7 @@ int main(int argc, char * argv[]) {
 
 		free(texte);
 	}
+    printf("\n");
 	fichierBalisesFerme(fic);
 	return 0;
 }
