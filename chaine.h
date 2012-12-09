@@ -8,12 +8,12 @@ Emmanuel Chieze, UQAM, INF3135, A12, TP2
 typedef struct chaine * Chaine;
 
 /* chaineCreeVide :
-	renvoie un pointeur vers la chaine si la creation a pu se faire, renvoie NULL sinon. La chaine est vide mais un certain espace lui a été alloué. Renvoie NULL si l'allocation d'espace n'a pas pu se faire.
+	renvoie un pointeur vers la chaine si la creation a pu se faire, renvoie NULL sinon. La chaine est vide mais un certain espace lui a ete alloue. Renvoie NULL si l'allocation d'espace n'a pas pu se faire.
 */
 Chaine chaineCreeVide();
 
 /* chaineCreeCopie :
-	renvoie un pointeur vers la chaine si la creation a pu se faire, renvoie NULL sinon. La chaine est creee comme copie des n premiers caracteres de ch. Renvoie NULL si l'allocation d'espace n'a pas pu se faire. n doit etre inferieur ou egal a la longueur de la chaine
+	renvoie un pointeur vers la chaine si la creation a pu se faire, renvoie NULL sinon. La chaine est creee comme copie des n premiers caracteres de ch. Renvoie NULL si l'allocation d'espace n'a pas pu se faire. n doit etre inferieur ou egal a la longueur de la chaine ch
 */
 Chaine chaineCreeCopie(char * ch, unsigned n);
 
@@ -22,14 +22,13 @@ Chaine chaineCreeCopie(char * ch, unsigned n);
 
 	Retourne faux si l'insertion echoue, vrai sinon.
 	ch doit etre un pointeur non NULL vers une chaine creee par ChaineCree
-	n doit être inférieur à la longueur de ch
+	n doit etre inferieur a la longueur de ch
 */
 int chaineAjoute(Chaine, unsigned char);
 
 /* chaineValeur
-	retourne le contenu de la chaîne au format char *
-	L'allocation de l'espace pour le résultat est assuré par chaineValeur.
-
+	retourne le contenu de la chaine au format char *
+	L'allocation de l'espace pour le resultat est assure par chaineValeur.
 	ch doit etre un pointeur non NULL vers une chaine creee par ChaineCree
 */
 char * chaineValeur(Chaine);

@@ -1,26 +1,39 @@
 /* fichierBalises.c
  * Par Guillaume Lahaie et Sylvain Labranche
- * LAHG04077707
+ *     LAHG04077707        LABS02059007
  *
  * Date de remise: 18 décembre 2012
  *
- * Implémentation de fichierBalises.h
+ * Dernières modifications: 8 décembre 2012
+ *
+ * Implémentation de fichierBalises.h. Le module permet d'ouvrir un fichier
+ * et d'obtenir la prochaine balise ou le prochain extrait de texte. Comme 
+ * pour le module.h, NULL peut être interpréter de différentes façons: soit
+ * il s'agit d'une situation concernant l'ouverture ou la lecture du fichier,
+ * soit il s'agit d'un problème d'allocation de mémoire.
+ *
  */
 
+#define BALISE_DEBUT '<'
+#define BALISE_FIN '>'
 #include <stdio.h>
 #include <assert.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include "fichierBalises.h"
 #include "chaine.h"
 #include "balise.h"
-#include <ctype.h>
 
 
 struct fichierBalises {
     FILE *fic;
-    int position;
+    int position; //dernière position lue dans le fichier.
 };
 
+
+//fichierBalisesOuvre:
+//retourne NULL dans deux cas: soit il est impossible d'ouvrir le
+//fichier nom_fichier, soit l'allocation de mémoire a échoué.
 fichierBalises fichierBalisesOuvre(char * nom_fichier) {
 
     fichierBalises fib = (fichierBalises)malloc(sizeof(struct fichierBalises));
@@ -48,17 +61,22 @@ void fichierBalisesFerme(fichierBalises fichier) {
     return;
 }   
 
+
+//fichierBalisesLit:
+//retourne une structure TypeInfo contenant soit la prochaine balise,
+//soit le prochain texte. Si la balise est de type DIRECTIVE ou COMMENTAIRES,
+//on lit le prochain extrait du fichier. Pour ce faire, j'utilise un appel
+//récursif à fichieBalisesLit.
 Info fichierBalisesLit(fichierBalises fichier) {
 
     Info info;
-    Chaine prochaine;
-    int prochainCar, 
-        verif;          
-    char *temp;         //Pour éviter de perdre de la mémoire allouée
+    Chaine prochaine;   
+    int prochainCar,    
+        verif;          //Caractère de fin de texte ou balise
 
     info = (Info)malloc(sizeof(struct info));
 
-    //On s'assure que le fichier est à la dernière position lue
+    //On s'assure que le fichier est placé à la dernière position lue.
     fseek(fichier->fic, fichier->position*sizeof(char), SEEK_SET);
         
     //On obtient le prochain caractère qui n'est pas un blanc.
@@ -70,42 +88,44 @@ Info fichierBalisesLit(fichierBalises fichier) {
     if(prochainCar == EOF) {
         free(info);
         return NULL;
-    }else if (prochainCar == '<') {
-        verif = '>';
+    }else if (prochainCar == BALISE_DEBUT) {
+        verif = BALISE_FIN;
         info->type = BALISE;
     } else {
-        verif = '<';
+        verif = BALISE_DEBUT;
         info->type = TEXTE;
     }
 
     prochaine = chaineCreeVide();
+    if(!prochaine) {
+        free(info);
+        return NULL;
+    }
     chaineAjoute(prochaine, (unsigned char)prochainCar);
         
-    //On rempli la chaine, jusq'au caractere verif ou jusqu'à la fin du fichier
+    //On rempli la chaine. Le seul moment où on n'ajoute pas à la chaine est
+    //lors de la lecture d'un '<' avec un TypeInfo TEXTE.
     do {    
         prochainCar = fgetc(fichier->fic);
         if((prochainCar == verif && info->type == BALISE) || prochainCar != verif) {
-            chaineAjoute(prochaine,(unsigned char)prochainCar);
+            if(!chaineAjoute(prochaine,(unsigned char)prochainCar)){
+                //problème d'ajout à la chaine.
+                free(prochaine);
+                free(info);
+                return NULL;
+            }
             fichier->position++;
         }
     } while(prochainCar != verif && prochainCar != EOF);
-
         
     if(info->type == TEXTE) {
-
-        temp = chaineValeur(prochaine);
-        if(!temp) {
-            //Malloc a échoué
-        } else {
-            info->contenu.texte = chaineCreeCopie(temp, chaineLongueur(prochaine));
-            free(temp);
-        }
+        info->contenu.texte = prochaine;
     } else {
         //analyse de la balise
         info->contenu.balise = baliseCree(prochaine);
+        chaineSupprimme(prochaine);
     }
 
-    chaineSupprimme(prochaine);
     if(info->type == BALISE && (baliseLitType(info->contenu.balise) == COMMENTAIRES ||                       baliseLitType(info->contenu.balise) == DIRECTIVE)) {
 
         baliseSupprimme(info->contenu.balise);
@@ -115,5 +135,4 @@ Info fichierBalisesLit(fichierBalises fichier) {
     return info;
 
 }
-           
-        
+
