@@ -1,15 +1,15 @@
 #Makefile pour TP2
 #Par Guillaume Lahaie et Sylvain Labranche
-#LAHG04077707
+#    LAHG04077707		 LABS02059007		
 
 #Variables prédéfinies
 CC = gcc
 CFLAGS = -g -W -Wall
 
 #Dépendances
-extraitTexte: extraitTexte.o chaine.o fichierBalises.o balise.o
+extraitStructure: extraitStructure.o chaine.o fichierBalises.o balise.o pile.o
 
-extraitTexte.o: extraitTexte.c chaine.h fichierBalises.h
+extraitStructure.o: extraitTexte.c chaine.h fichierBalises.h pile.h balise.h
 
 fichierBalises.o: fichierBalises.c fichierBalises.h balise.h chaine.h
 

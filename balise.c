@@ -132,10 +132,9 @@ Chaine baliseLitNom(Balise balise) {
     assert(balise != NULL && "balise est NULL.");
     assert(baliseLitType(balise) != DIRECTIVE && baliseLitType(balise) 
             != COMMENTAIRES && "Mauvais type de balise.");
-
-    Chaine nomBalise = chaineCreeCopie(chaineValeur(balise->nom), 
-            chaineLongueur(balise->nom));
-    
+    char * temp = chaineValeur(balise->nom);
+    Chaine nomBalise = chaineCreeCopie(temp, chaineLongueur(balise->nom));
+    free(temp);
     if(nomBalise == NULL) {
         return NULL;
     }
