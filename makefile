@@ -17,6 +17,8 @@ balise.o: balise.c balise.h chaine.h
 
 chaine.o: chaine.c chaine.h
 
+pile.o: pile.h pile.c
 
+#Je nomme les fichiers .o, pour éviter d'en effacer qui ne seraient pas à effacer.
 clean:
-	rm *.o
+	rm chaine.o balise.o fichierBalises.o pile.o extraitStructure.o
