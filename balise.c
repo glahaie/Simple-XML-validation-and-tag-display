@@ -155,12 +155,19 @@ Chaine baliseLitAttributs(Balise balise) {
             COMMENTAIRES && "Mauvais type de balise.");
 
     Chaine attribut;
+    char *temp;  //Pour libérer l'allocation
 
     if(balise->attribut == NULL) {
         return NULL;
     } else {
-        attribut = chaineCreeCopie(chaineValeur(balise->attribut), 
-                chaineLongueur(balise->attribut));
+        temp = chaineValeur(balise->attribut);
+        if(!temp) {
+            return NULL;
+        }
+        attribut = chaineCreeCopie(temp,
+                    chaineLongueur(balise->attribut));
+        free(temp);
+        
         if(!attribut) {
             return NULL;
         }
