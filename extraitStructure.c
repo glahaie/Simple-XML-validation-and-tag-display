@@ -32,6 +32,7 @@
 #include "balise.h"
 #include "fichierBalises.h"
 
+#define IMBRICATION "  "
 #define ERR_ARG 1	//Erreur avec les arguments
 #define ERR_XML 2   //Erreur dans le fichier XML/HTML
 #define ERR_FICHIER 3
@@ -74,12 +75,13 @@ int main(int argc, char *argv[]) {
 	while ((texte = fichierBalisesLit(fichier)) != NULL) {
 	    if (texte->type == BALISE) {
 	        typeBalise = baliseLitType(texte->contenu.balise);
-	        if (typeBalise == DEBUTFIN || typeBalise == DEBUT) {
+	        if (typeBalise == DEBUT || typeBalise == DEBUTFIN) {
 	            afficherBalise(imbrication, texte->contenu.balise);
                 if(typeBalise == DEBUT) {
-                    //on empile
                     pileEmpiler(texte);
                     imbrication++;
+                } else {
+                    libereInfo(texte);
                 }
 	        } else if (typeBalise == FIN) {
                 //Vérifier si la pile est vide avant de dépiler
@@ -147,7 +149,7 @@ void afficherBalise (int imbrication, const Balise balise) {
     Chaine temp2;
     int i;
     for (i = 0;  i < imbrication; i++)  {
-        printf("  ");
+        printf("%s", IMBRICATION);
     }
 
     temp2 = baliseLitNom(balise);

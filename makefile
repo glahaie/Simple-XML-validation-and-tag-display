@@ -4,7 +4,7 @@
 
 #Variables prédéfinies
 CC = gcc
-CFLAGS = -g -W -Wall
+CFLAGS =  -W -Wall
 
 #Dépendances
 extraitStructure: extraitStructure.o chaine.o fichierBalises.o balise.o pile.o
@@ -19,6 +19,8 @@ chaine.o: chaine.c chaine.h
 
 pile.o: pile.h pile.c
 
-#Je nomme les fichiers .o, pour éviter d'en effacer qui ne seraient pas à effacer.
+#Je suppose ici que le répertoire contienr seulement  les fichiers .o 
+#de ce programme. Si le répertoire en contient d'autres, ils seront
+#effacés.
 clean:
-	rm chaine.o balise.o fichierBalises.o pile.o extraitStructure.o
+	rm *.o extraitStructure
