@@ -23,4 +23,5 @@ pile.o: pile.h pile.c
 #de ce programme. Si le répertoire en contient d'autres, ils seront
 #effacés.
 clean:
-	rm *.o extraitStructure
+	rm *.o extraitStructure 
+

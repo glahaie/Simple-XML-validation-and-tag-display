@@ -4,7 +4,7 @@
  *
  * Date de remise: 18 décembre 2012
  *
- * Dernières modifications: 8 décembre 2012
+ * Dernières modifications: 12 décembre 2012
  *
  * Implémentation de fichierBalises.h. Le module permet d'ouvrir un fichier
  * et d'obtenir la prochaine balise ou le prochain extrait de texte. Comme 
@@ -21,9 +21,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "fichierBalises.h"
-#include "chaine.h"
-#include "balise.h"
-
 
 struct fichierBalises {
     FILE *fic;
@@ -40,10 +37,8 @@ fichierBalises fichierBalisesOuvre(char * nom_fichier) {
     if(!fib) {
         return NULL;
     }
-    
-    fib->fic = fopen(nom_fichier, "r");
 
-    if(!fib->fic) {
+    if(!(fib->fic = fopen(nom_fichier, "r"))) {
         free(fib);
         return NULL;
     } else {
@@ -66,15 +61,19 @@ void fichierBalisesFerme(fichierBalises fichier) {
 //retourne une structure TypeInfo contenant soit la prochaine balise,
 //soit le prochain texte. Si la balise est de type DIRECTIVE ou COMMENTAIRES,
 //on lit le prochain extrait du fichier. Pour ce faire, j'utilise un appel
-//récursif à fichieBalisesLit.
+//récursif à fichieBalisesLit. La fonction retourne NULL si une
+//allocation de mémoire échoue.
 Info fichierBalisesLit(fichierBalises fichier) {
 
+    assert(fichier !=NULL && "fichier est NULL");
     Info info;
     Chaine prochaine;   
     int prochainCar,    
         verif;          //Caractère de fin de texte ou balise
 
-    info = (Info)malloc(sizeof(struct info));
+    if(!(info = (Info)malloc(sizeof(struct info)))) {
+        return NULL;
+    }
 
     //On s'assure que le fichier est placé à la dernière position lue.
     fseek(fichier->fic, fichier->position*sizeof(char), SEEK_SET);
@@ -96,11 +95,11 @@ Info fichierBalisesLit(fichierBalises fichier) {
         info->type = TEXTE;
     }
 
-    prochaine = chaineCreeVide();
-    if(!prochaine) {
+    if(!(prochaine = chaineCreeVide())) {
         free(info);
         return NULL;
     }
+
     chaineAjoute(prochaine, (unsigned char)prochainCar);
         
     //On rempli la chaine. Le seul moment où on n'ajoute pas à la chaine est

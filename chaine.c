@@ -4,7 +4,7 @@
  *
  * Date de remise: 18 décembre 2012
  *
- * Dernières modifications: 8 décembre 2012
+ * Dernières modifications: 12 décembre 2012
  *
  * Implémentation du module chaine.h, pour des chaines de caractères
  * dynamiques.
@@ -39,7 +39,6 @@ Chaine chaineCreeVide() {
 
     //Insère \0 pour la fin de la chaine.
     chaine->texte[0] = '\0';
-
     chaine->longueur = 1;
     chaine->longueurMax = TEXTE_PAS;
 

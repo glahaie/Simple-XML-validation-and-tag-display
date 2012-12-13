@@ -4,7 +4,7 @@
  *      
  * Date de remise: 18 décembre 2012.
  *
- * Dernières modifications: 8 décembre 2012.
+ * Dernières modifications: 12 décembre 2012.
  *
  * Implémentation du fichier en-tête balise.h. La fonction baliseCree
  * contient la majorité du code du module. D'après les données du TP,
@@ -47,15 +47,17 @@ struct balise {
     TypeBalise type;
 };
 
+//obtenirType:
 //Retourne le type de balise de la chaine, selon l'énumération TypeBalise.
 TypeBalise obtenirType(char *nom);
 
+//verifierChamp:
 //Verifie qu'un champ d'une balise contient pas de caractères illégaux. 
 //Retourne faux s'il y une erreur, vrai sinon. Si l'allocation de mémoire
 //ne fonctionne pas, retourne -1.
 int verifierChamp(Chaine chaine, char *carInterdits);
 
-
+//baliseCree:
 //La fonction obtient le champ balise->type, et les champs balise->nom et
 //balise->attribut si nécéssaire, selon le type de balise. Elle utilise
 //la fonction strtok pour obtenir le nom et les attributs. Si l'allocation
@@ -63,14 +65,17 @@ int verifierChamp(Chaine chaine, char *carInterdits);
 //retourne alors NULL.
 Balise baliseCree(Chaine nom) {
 
-    Balise balise = (Balise)malloc(sizeof(struct balise));
+    Balise balise;
     char * jeton;                           //pour strtok
     char * attributs;                       //pour les attributs, si nécessaire
-    char * valeurNom = chaineValeur(nom);
+    char * valeurNom;
     int champ;
 
-    if(balise == NULL || valeurNom == NULL) {
-        baliseSupprimme(balise);
+    if(!(balise = (Balise)malloc(sizeof(struct balise)))) {
+        return NULL;
+    }
+    if(!(valeurNom = chaineValeur(nom))) {
+        free(balise);
         return NULL;
     }
 
@@ -80,11 +85,18 @@ Balise baliseCree(Chaine nom) {
     if (balise->type == FIN) {
         //Trouver le nom à l'aide de jetons.
         jeton = strtok(&valeurNom[2], ">");
-        balise->nom = chaineCreeCopie(jeton, strlen(jeton));
-    } else {
-        //C'est un début/ debutfin
+        if(!(balise->nom = chaineCreeCopie(jeton, strlen(jeton)))) {
+            free(balise);
+            free(valeurNom);
+            return NULL;
+        }
+    } else if (balise->type == DEBUT || balise->type == DEBUTFIN) {
         jeton = strtok(&valeurNom[1], " >");
-        balise->nom = chaineCreeCopie(jeton, strlen(jeton));
+        if(!(balise->nom = chaineCreeCopie(jeton, strlen(jeton)))) {
+            free(balise);
+            free(valeurNom);
+            return NULL;
+        }
          
         //Traitement des attributs, si nécessaire.
         if((jeton = strtok(NULL, " >")) != NULL) {
@@ -104,10 +116,13 @@ Balise baliseCree(Chaine nom) {
                 //Pour enlever le '/' d'attributs
                 attributs[strlen(attributs)-2] = '\0';
             }
-            balise->attribut = chaineCreeCopie(attributs, strlen(attributs));
             free(attributs);
+            if(!(balise->attribut = chaineCreeCopie(attributs, strlen(attributs)))) {
+                baliseSupprimme(balise);
+                return NULL;
+            }
         }    
-    }
+    } 
     
     //Vérifie que le nom est bien formé, si nécessaire, et qu'il
     //n'est pas NULL
