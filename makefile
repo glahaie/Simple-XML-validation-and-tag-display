@@ -1,6 +1,9 @@
 #Makefile pour TP2
 #Par Guillaume Lahaie et Sylvain Labranche
 #    LAHG04077707		 LABS02059007		
+#
+#    Dernières modifications: 15 décembre 2012
+#    Remise: 18 décembre 2012
 
 #Variables prédéfinies
 CC = gcc
@@ -20,8 +23,7 @@ chaine.o: chaine.c chaine.h
 pile.o: pile.h pile.c
 
 #Je suppose ici que le répertoire contienr seulement  les fichiers .o 
-#de ce programme. Si le répertoire en contient d'autres, ils seront
-#effacés.
+#de ce programme. Si le répertoire en contient d'autres, ils seront effacés.
 clean:
 	rm *.o extraitStructure 
 

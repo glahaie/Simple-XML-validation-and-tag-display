@@ -72,7 +72,7 @@ Chaine chaineCreeCopie(char * ch, unsigned n) {
 //J'utilise une chaine temporaire pour éviter de perdre la chaine passée en
 //argument si le realloc ne fonctionne pas. Le seul cas où la fonction
 //retourne faux est si la Chaine est pleine et que realloc échoue.
-int chaineAjoute(Chaine chaine, unsigned char ch) {
+int chaineAjoute(Chaine chaine, unsigned char c) {
 
     assert(chaine != NULL  && "Erreur: chaine NULL");
 
@@ -88,7 +88,7 @@ int chaineAjoute(Chaine chaine, unsigned char ch) {
         chaine->texte = temp;
         chaine->longueurMax += TEXTE_PAS;
     }
-    chaine->texte[chaine->longueur-1] = ch;
+    chaine->texte[chaine->longueur-1] = c;
     chaine->texte[chaine->longueur++] = '\0';
     return 1;
 }

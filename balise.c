@@ -4,13 +4,15 @@
  *      
  * Date de remise: 18 décembre 2012.
  *
- * Dernières modifications: 12 décembre 2012.
+ * Dernières modifications: 15 décembre 2012.
  *
  * Implémentation du fichier en-tête balise.h. La fonction baliseCree
  * contient la majorité du code du module. D'après les données du TP,
  * on suppose que la chaine utilisée pour la fonction baliseCree contient
  * une balise valide, donc avec les délimiteurs tel qu'attendu (<>), et
- * le nom et les attributs valides. 
+ * le nom et les attributs valides. Nous effectuons une vérification pour 
+ * s'assurer que la chaine passée contient bien un '<' en premier caractère
+ * et un '>' en dernier caractère. Si ce n'est pas le cas, on retourne NULL.
  *
  * Nous vérifions quand même que le nom de la balise ne contient pas de
  * caractères illégaux grâce à la fonction verifierChamp. On pourrait pousser
@@ -75,6 +77,14 @@ Balise baliseCree(Chaine nom) {
         return NULL;
     }
     if(!(valeurNom = chaineValeur(nom))) {
+        free(balise);
+        return NULL;
+    }
+
+    //Vérification qu'il s'agit bien d'une balise et nom d'une chaine
+    //quelconque.
+    if(valeurNom[0] != '<' || valeurNom[chaineLongueur(nom)-1] != '>') {
+        free(valeurNom);
         free(balise);
         return NULL;
     }
@@ -172,6 +182,7 @@ Chaine baliseLitAttributs(Balise balise) {
     Chaine attribut;
     char *temp;  //Pour libérer l'allocation
 
+    //If sert ici à éviter de passer ue chaine NULL à chaineValeur.
     if(balise->attribut == NULL) {
         return NULL;
     } else {

@@ -2,7 +2,7 @@
  * Par Guillaume Lahaie et Sylvain Labranche
  *     LAHG04077707        LABS02059007
  *
- * Dernière modification: 12 décembre 2012
+ * Dernière modification: 15 décembre 2012
  *
  * Remise: 18 décembre 2012
  *
@@ -35,8 +35,8 @@
  *    la pile est pleine.
  *
  *  Le programme a comme comportement, lors d'une erreur d'allocation dynamique
- *  de mémoire, d'afficher un message d'erreur sur stderr, mais il ne s'arrête
- *  pas tout de suite
+ *  de mémoire, d'afficher un message d'erreur sur stderr et d'arrêter le 
+ *  traitement.
  */
 
 #include <stdio.h>
@@ -129,11 +129,12 @@ int main(int argc, char *argv[]) {
 
                 compare1 = obtenirNomBalise(depile->contenu.balise);
                 compare2 = obtenirNomBalise(texte->contenu.balise);
-                if(!compare1 || !compare2) {
-                    erreur = ERR_MEM;
-                }
                 libereInfo(texte);
                 libereInfo(depile);
+                if(!compare1 && !compare2) {
+                    erreur = ERR_MEM;
+                    break;
+                }
                 resultatCompare = strcmp(compare1, compare2);
                 free(compare1);
                 free(compare2);

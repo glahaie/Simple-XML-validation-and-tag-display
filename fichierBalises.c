@@ -69,7 +69,7 @@ Info fichierBalisesLit(fichierBalises fichier) {
     Info info;
     Chaine prochaine;   
     int prochainCar,    
-        verif;          //Caractère de fin de texte ou balise
+        verif;          //Caractère de fin de texte ou balise.
 
     if(!(info = (Info)malloc(sizeof(struct info)))) {
         return NULL;
