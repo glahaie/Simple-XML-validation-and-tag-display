@@ -1,4 +1,4 @@
-/* tp1.c
+/* extraitStructure.c
  * Par Guillaume Lahaie et Sylvain Labranche
  *     LAHG04077707        LABS02059007
  *
