@@ -2,7 +2,7 @@
 #Par Guillaume Lahaie et Sylvain Labranche
 #    LAHG04077707		 LABS02059007		
 #
-#    Dernières modifications: 15 décembre 2012
+#    Dernières modifications: 18 décembre 2012
 #    Remise: 18 décembre 2012
 
 #Variables prédéfinies
