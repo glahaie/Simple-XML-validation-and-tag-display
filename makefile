@@ -12,7 +12,7 @@ CFLAGS =  -W -Wall
 #Dépendances
 extraitStructure: extraitStructure.o chaine.o fichierBalises.o balise.o pile.o
 
-extraitStructure.o: extraitTexte.c chaine.h fichierBalises.h pile.h balise.h
+extraitStructure.o: extraitStructure.c fichierBalises.h pile.h
 
 fichierBalises.o: fichierBalises.c fichierBalises.h balise.h chaine.h
 
