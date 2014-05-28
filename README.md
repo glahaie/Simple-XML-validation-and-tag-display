@@ -1,5 +1,11 @@
-INF3135_TP2
+XML Validation and tag tree
 ===========
 
-Deuxième travail pratique du cours INF3135 de l'UQAM. Il s'agit d'un programme qui lit les balises d'un
-fichier qui lit les balises de fichiers xml ou html. Il utilise les modules fournis dans l'énoncé.
+The program parses a XML or HTML file and checks for errors in the tags. If
+an error is found, a message is printed. If the file is correct, a tree
+of the tag names is printed. The header files were given with the homework.
+
+***
+
+Programme qui lit les balises de fichiers xml ou html. Il utilise les
+modules fournis dans l'énoncé du devoir.

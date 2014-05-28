@@ -12,15 +12,15 @@ CFLAGS =  -W -Wall
 #Dépendances
 extraitStructure: extraitStructure.o chaine.o fichierBalises.o balise.o pile.o
 
-extraitStructure.o: extraitStructure.c fichierBalises.h pile.h
+extraitStructure.o: extraitStructure.c 
 
-fichierBalises.o: fichierBalises.c fichierBalises.h balise.h chaine.h
+fichierBalises.o: fichierBalises.c 
 
-balise.o: balise.c balise.h chaine.h
+balise.o: balise.c 
 
-chaine.o: chaine.c chaine.h
+chaine.o: chaine.c 
 
-pile.o: pile.h pile.c
+pile.o: pile.c
 
 #Je suppose ici que le répertoire contienr seulement  les fichiers .o 
 #de ce programme. Si le répertoire en contient d'autres, ils seront effacés.
